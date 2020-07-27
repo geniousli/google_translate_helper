@@ -8,11 +8,10 @@
   "icons": {
     "48": "icons/border-48.png"
   },
-
   "content_scripts": [
     {
       "matches": ["*://*.mozilla.org/*"],
-      "js": ["borderify.js"]
+      "js": ["pocket.js"]
     }
   ],
   "background": {
@@ -25,13 +24,5 @@
     "<all_urls>",
     "tabs"
   ],
-  "browser_action": {
-    "default_icon": {
-      "16": "icons/border-48.png",
-      "32": "icons/border-48.png"
-    },
-    "default_popup": "tab-manger.html"
-
-  },
   "homepage_url": "https://example.org/my-addon"
 }
