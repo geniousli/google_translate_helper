@@ -23,6 +23,11 @@ document.body.addEventListener("mouseover", function( event ) {
   // reset the color after a short delay
 });
 
+document.body.addEventListener('mousedown', function(event) {
+  log("-------------------- mousedown");
+  log(event);
+})
+
 document.body.addEventListener('mouseup', function(event) {
   var selection = document.getSelection();
   if(selection.isCollapsed) {
@@ -43,8 +48,13 @@ document.body.addEventListener('mouseup', function(event) {
   log('text nodes --------------------');
   log(first);
   log(last);
-  highlightWithOffest(last, 0, selection.focusOffset);
-  highlightWithOffest(first, selection.anchorOffset);
+  if(last == first) {
+    highlightWithOffest(last, selection.anchorOffset, selection.focusOffset);
+  }else {
+    highlightWithOffest(last, 0, selection.focusOffset);
+    highlightWithOffest(first, selection.anchorOffset);
+  }
+
   // textNodes.forEach((tab) => {
   //   console.log(tab.textContent || tab.innerText)
   // })
@@ -110,14 +120,13 @@ function highlight(node) {
   if(nodeIstext(node)) {
     var parent = node.parentElement;
     var sib = node.nextSibling;
-    node.remove();
     var newNode = null
     if(node.nodeType == Node.TEXT_NODE) {
       newNode = lightSpan(node.textContent);
     }else {
       newNode = lightSpan(node.textContent);
     }
-    parent.insertBefore(newNode, sib);
+    parent.replaceChild(newNode, node);
   }
 }
 
@@ -142,9 +151,11 @@ function findNodes(lParent, rParent) {
     rParent = rParent.parentNode;
     lParent = lParent.parentNode;
   }
+
   var index = rightParents.indexOf(parent);
   var rights = rightParents.slice(0, index);
   var topRight = rights.pop();
+
   var rightNodes =
       rights.map((tab) => {
         var next = tab.nextSibling;
@@ -158,7 +169,6 @@ function findNodes(lParent, rParent) {
 
 
   var index = leftParents.indexOf(parent);
-
   var lefts = leftParents.slice(0, index);
   var topLeft = lefts.pop();
 
@@ -174,9 +184,10 @@ function findNodes(lParent, rParent) {
       }).flat(Infinity);
 
   var topNodes = [];
-
-  while((topRight = topRight.nextSibling) != topLeft) {
-    topNodes.push(topRight);
+  if(topRight && topLeft) {
+    while((topRight = topRight.nextSibling) != topLeft) {
+      topNodes.push(topRight);
+    }
   }
   log("---------------------------------------------------------------------------------------------------- left nodes begins");
   leftNodes.forEach((tab) => {
