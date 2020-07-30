@@ -36,29 +36,22 @@ document.body.addEventListener('mouseup', function(event) {
   log('selection --------------------');
   log(selection);
   log('selection --------------------');
-  var result = findNodes(selection.focusNode, selection.anchorNode);
-  var nodes = result.nodes;
-  var commParent = result.parent;
-  log('nodes after filter --------------------');
-  log(nodes);
 
-  var first = nodes[0];
-  var last = nodes[nodes.length - 1];
-  nodes.slice(1, -1).forEach((node)=> highlight(node))
-  log('text nodes --------------------');
-  log(first);
-  log(last);
-  if(last == first) {
-    highlightWithOffest(last, selection.anchorOffset, selection.focusOffset);
+  var result = findNodes(selection.focusNode, selection.anchorNode, selection.focusOffset, selection.anchorOffset);
+  result.nodes.forEach((node)=> highlight(node))
+
+  var leftNode = result.lNode;
+  var rightNode = result.rNode;
+
+  var leftOffset = result.lOffset;
+  var rightOffset = result.rOffset;
+
+  if(leftNode == rightNode) {
+    highlightWithOffest(rightNode, rightOffset, leftOffset);
   }else {
-    highlightWithOffest(last, 0, selection.focusOffset);
-    highlightWithOffest(first, selection.anchorOffset);
+    highlightWithOffest(leftNode, 0, leftOffset);
+    highlightWithOffest(rightNode, rightOffset);
   }
-
-  // textNodes.forEach((tab) => {
-  //   console.log(tab.textContent || tab.innerText)
-  // })
-  // log(textNodes);
 });
 
 
@@ -105,7 +98,6 @@ function highlightWithOffest(node, from, to) {
     domAry.forEach((node) => {
       parent.insertBefore(node, sib);
     })
-
   }
 }
 
@@ -130,27 +122,60 @@ function highlight(node) {
   }
 }
 
-
-function findNodes(lParent, rParent) {
-  var rightParents = [];
-  var leftParents = [];
+function findCommonNode(aNode, bNode, aOffset, bOffset) {
+  var aPath = [];
+  var bPath = [];
+  var oaNode = aNode;
+  var obNode = bNode;
   var parent = null;
-  var olParent = lParent;
-  var orParent = rParent;
   while(true) {
-    rightParents.push(rParent);
-    leftParents.push(lParent);
-    if(rightParents.indexOf(lParent) > -1) {
-      parent = lParent;
+    bPath.push(obNode);
+    aPath.push(oaNode);
+    if(bPath.indexOf(oaNode) > -1) {
+      parent = oaNode;
       break;
     }
-    if(leftParents.indexOf(rParent) > -1) {
-      parent = rParent;
+    if(aPath.indexOf(obNode) > -1) {
+      parent = obNode;
       break;
     }
-    rParent = rParent.parentNode;
-    lParent = lParent.parentNode;
+    obNode = obNode.parentNode;
+    oaNode = oaNode.parentNode;
   }
+  var aindex = aPath.indexOf(parent);
+  var aIsRight = true;
+  if(aindex == 0 ){
+    if(aOffset > bOffset) {
+      aIsRight = false
+    }
+  }else {
+    var bindex = bPath.indexOf(parent);
+    var aTop = aPath[aindex - 1];
+    var bTop = bPath[bindex - 1];
+    while(aTop = aTop.nextSibling) {
+      if(aTop == bTop) {
+        break;
+      }
+    }
+    if(aTop != bTop) {
+      aIsRight = false
+    }
+  }
+  if(aIsRight) {
+    return {"parent": parent, "rNode": aNode, "rPath": aPath, "lNode": bNode, "lPath": bPath, "lOffset": bOffset, "rOffset": aOffset};
+  }else {
+    return {"parent": parent, "rNode": bNode, "rPath": bPath, "lNode": aNode, "lPath": aPath, "lOffset": aOffset, "rOffset": bOffset};
+  }
+}
+
+function findNodes(lParent, rParent, lOffset, rOffset) {
+  var result = findCommonNode(lParent, rParent, lOffset, rOffset);
+
+  var parent = result.parent;
+  var rightParents = result.rPath;
+  var leftParents = result.lPath;
+  var orParent = result.rNode;
+  var olParent = result.lNode;
 
   var index = rightParents.indexOf(parent);
   var rights = rightParents.slice(0, index);
@@ -189,23 +214,18 @@ function findNodes(lParent, rParent) {
       topNodes.push(topRight);
     }
   }
+
   log("---------------------------------------------------------------------------------------------------- left nodes begins");
-  leftNodes.forEach((tab) => {
-    log(tab);
-  })
-  log("---------------------------------------------------------------------------------------------------- right nodes begins");
-  rightNodes.forEach((tab) => {
-    log(tab);
-  })
+  leftNodes.forEach((tab) => log(tab) )
 
   log("---------------------------------------------------------------------------------------------------- right nodes begins");
+  rightNodes.forEach((tab) => log(tab) )
 
-  topNodes.forEach((tab) => {
-    log(tab);
-  })
+  log("---------------------------------------------------------------------------------------------------- right nodes begins");
+  topNodes.forEach((tab) => log(tab))
+
   var nodes = rightNodes.concat(topNodes).concat(leftNodes);
-  nodes.unshift(orParent);
-  nodes.push(olParent);
   log(nodes);
-  return {"nodes": nodes, "parent": parent};
+
+  return {"nodes": nodes, "parent": parent, "rNode": orParent, "lNode": olParent, "lOffset": result.lOffset, "rOffset": result.rOffset};
 }
