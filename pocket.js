@@ -174,9 +174,10 @@ function findNodes(lParent, rParent, lOffset, rOffset) {
 
   var rightNodes =
       rights.map((tab) => {
-        var next = tab;
-        while(next = next.nextSibling) {
-          ary.push(next);
+        var tmp = tab;
+        var ary = [];
+        while(tmp = tmp.nextSibling) {
+          ary.push(tmp);
         }
         return ary;
       }).flat(Infinity);
@@ -188,9 +189,10 @@ function findNodes(lParent, rParent, lOffset, rOffset) {
 
   var leftNodes =
       lefts.reverse().map((tab) => {
-        var next = tab;
-        while(next = next.nextSibling) {
-          ary.push(next);
+        var tmp = tab;
+        var ary = [];
+        while(tmp = tmp.previousSibling) {
+          ary.push(tmp);
         }
         return ary;
       }).flat(Infinity);
