@@ -23,11 +23,6 @@ document.body.addEventListener("mouseover", function( event ) {
   // reset the color after a short delay
 });
 
-document.body.addEventListener('mousedown', function(event) {
-  log("-------------------- mousedown");
-  log(event);
-})
-
 document.body.addEventListener('mouseup', function(event) {
   var selection = document.getSelection();
   if(selection.isCollapsed) {
@@ -83,9 +78,7 @@ function highlightWithOffest(node, from, to) {
     var start = 0;
     while(start < content.length) {
       var end = u_ary.shift();
-      if(end == start) {
-        continue;
-      }
+      if(end == start) {continue;}
       var str = content.substring(start, end);
 
       if(start == from && end == to) {
@@ -95,9 +88,7 @@ function highlightWithOffest(node, from, to) {
       }
       start = end;
     }
-    domAry.forEach((node) => {
-      parent.insertBefore(node, sib);
-    })
+    domAry.forEach((node) => parent.insertBefore(node, sib));
   }
 }
 
@@ -183,11 +174,9 @@ function findNodes(lParent, rParent, lOffset, rOffset) {
 
   var rightNodes =
       rights.map((tab) => {
-        var next = tab.nextSibling;
-        var ary = [];
-        while(next) {
+        var next = tab;
+        while(next = next.nextSibling) {
           ary.push(next);
-          next = next.nextSibling;
         }
         return ary;
       }).flat(Infinity);
@@ -199,11 +188,9 @@ function findNodes(lParent, rParent, lOffset, rOffset) {
 
   var leftNodes =
       lefts.reverse().map((tab) => {
-        var next = tab.previousSibling;
-        var ary = [];
-        while(next) {
+        var next = tab;
+        while(next = next.nextSibling) {
           ary.push(next);
-          next = next.previousSibling;
         }
         return ary;
       }).flat(Infinity);
