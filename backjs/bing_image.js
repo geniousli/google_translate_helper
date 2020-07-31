@@ -20,7 +20,7 @@ function fetchUrl() {
   let xhr = new XMLHttpRequest();
   xhr.open('GET', 'https://cn.bing.com/', false);
   xhr.send(null);
-  let urlMatch =  xhr.response.match(/background-image:url\(.*\.jpg.*?hp\)/)[0];
+  let urlMatch =  xhr.response.match(/background-image:\s?url\(.*?\.jpg.*?\)/)[0];
   let url = urlMatch.match(/\/.*[^\)]/)[0];
   return `url(https://cn.bing.com${url})`;
 }
