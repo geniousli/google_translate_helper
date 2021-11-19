@@ -25,6 +25,38 @@ function addSaveBtn() {
   dom.appendChild(doc.firstChild);
 }
 
+const domChangeCallback = function(mutationsList, observer) {
+  let targetExist = false;
+  for(const mutation of mutationsList) {
+    if (mutation.type === 'childList' && mutation.target && mutation.target.className == "aia4Ud") {
+      targetExist = true;
+      break;
+    }
+  }
+  observer.disconnect();
+  if(targetExist) {
+    addDicBtn();
+  }
+  observeDomChange();
+};
+
+function addDicBtn() {
+  let dom = document.getElementsByClassName('aia4Ud')[0];
+  if(!dom.getElementsByClassName('saveDicBtnDiv')[0]) {
+    let info = '<div class="saveDicBtnDiv"><span >add to dic</span></div>';
+    let doc = new DOMParser().parseFromString(info, "text/xml");
+    dom.appendChild(doc.firstChild);
+  }
+}
+
+function observeDomChange() {
+  let dom = document.getElementsByClassName('kGmWO')[0];
+  let cwiz = dom.getElementsByTagName('c-wiz')[0];
+  const config = { childList: true, subtree: true };
+  const observer = new MutationObserver(domChangeCallback);
+  observer.observe(cwiz, config);
+}
+
 function initHistoryDiv() {
   let fankui = document.getElementsByClassName('a88hkc')[0];
 
@@ -91,8 +123,8 @@ function clickEvent(event) {
     let parsedUrl = new URL(document.URL);
     parsedUrl.searchParams.set("text", word);
     window.location.href = parsedUrl.toString();
-  }
-}
+  }else if()
+    }
 
 
 function getTranslateContent() {
@@ -101,4 +133,5 @@ function getTranslateContent() {
 }
 
 addSaveBtn();
+observeDomChange();
 initHistoryDiv();

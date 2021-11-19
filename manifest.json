@@ -4,19 +4,18 @@
   "manifest_version": 2,
   "name": "google_translate_helper",
   "version": "1.0",
-  "homepage_url": "https://",
+  "homepage_url": "https://github.com/geniousli/google_translate_helper",
   "icons": {
     "48": "icons/translate-48.png"
   },
   "content_scripts": [
     {
-      "matches": ["*://translate.google.cn/*"],
+      "matches": ["*://translate.google.cn/*", "*://translate.google.com/*"],
       "js": ["dictionary.js"],
       "css": ["dictionary.css"]
     }
   ],
   "permissions": [
-    "<all_urls>",
-  ],
-  "homepage_url": "https://example.org/my-addon"
+    "<all_urls>"
+  ]
 }

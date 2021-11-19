@@ -52,3 +52,14 @@
     margin: 0 4px 6px 0;
     padding: 0 8px;
 }
+
+
+.saveDicBtnDiv {
+    display: inline-block;
+    padding-left: 20px;
+}
+.saveDicBtnDiv span {
+    cursor: pointer;
+    color: #1a73e8;
+    font-size: 20px;
+}
