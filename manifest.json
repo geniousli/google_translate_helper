@@ -15,6 +15,9 @@
       "css": ["dictionary.css"]
     }
   ],
+  "background": {
+    "scripts": ["history.js"]
+  },
   "permissions": [
     "<all_urls>"
   ]
