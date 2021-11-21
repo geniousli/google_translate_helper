@@ -35,6 +35,11 @@
     display: flex;
 }
 
+.historyLink {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 .historyContainer {
     display: inline;
 }
