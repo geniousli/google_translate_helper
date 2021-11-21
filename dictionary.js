@@ -9,6 +9,23 @@ window.localStorage.__proto__.getItemSplit = function(name, split, def = []) {
   }
 }
 
+Array.prototype.uniqueUnshift = function(word) {
+  if(word instanceof Array){
+    var that = this;
+    word.forEach(function(item) {
+      if(that.indexOf(item) <= -1) {
+        that.unshift(item);
+      }
+    })
+  }else {
+    if(this.indexOf(word) <= -1) {
+      this.unshift(word);
+    }
+  }
+};
+
+
+
 // var ALL_CONTENTKEY = "all_content"; // content key
 var DATEKEY = "date_key"; // save all keys of key
 
@@ -64,7 +81,7 @@ const historyFromStorage = (function() {
   var allContents = []; // ['xx', 'xx1]
 
   var fankui = document.getElementsByClassName('a88hkc')[0];
-  var parent = document.getElementsByClassName('WFnNle')[0].firstChild;
+  var parent = document.getElementsByClassName('WFnNle')[0].firstChild;// c-wiz
 
   function toDiv(contents, title) {
     var cSpan = '';
@@ -73,8 +90,27 @@ const historyFromStorage = (function() {
         cSpan += toSpan(item);
       }
     });
-    var history = `<div class="historyDiv"><p class="historyTitle">${title}:</p><span class="historyContainer" > ${cSpan}</span></div>`;
-    return history;
+    var data = `<div class="historyDiv"><p class="historyTitle" sign="${title}" >${title}:</p><span class="historyContainer" > ${cSpan}</span></div>`;
+    var doc = new DOMParser().parseFromString(data, "text/xml");
+    return doc.firstChild;
+  }
+
+  function refreshDiv(contents, title) {
+    var coll = parent.getElementsByClassName("historyTitle");
+    var domFind = null;
+    for(var i = 0 ; i < coll.length; i ++ ) {
+      if(coll.item(i).getAttribute("sign") == title) {
+        domFind = coll.item(i);
+        break;
+      }
+    }
+    let dom = toDiv(contents, title);
+    if(domFind) {
+      domFind.parentElement.replaceWith(dom);
+    }else {
+      let before = coll[1];
+      parent.insertBefore(dom, before);
+    }
   }
 
   function toSpan(content) {
@@ -82,15 +118,13 @@ const historyFromStorage = (function() {
   }
 
   function insertLastFiveDay() {
-    var div = toDiv(allContents, 'history');
-    var doc = new DOMParser().parseFromString(div, "text/xml");
-    parent.insertBefore(doc.firstChild, fankui);
+    var doc = toDiv(allContents, 'history');
+    parent.insertBefore(doc, fankui);
 
     dates.slice(0, 4).forEach(function(item){
       var contents = map[item];
-      var div = toDiv(contents, item.substr(0, 10));
-      var doc = new DOMParser().parseFromString(div, "text/xml");
-      parent.insertBefore(doc.firstChild, fankui);
+      var doc = toDiv(contents, item.substr(0, 10));
+      parent.insertBefore(doc, fankui);
     });
   }
 
@@ -102,18 +136,41 @@ const historyFromStorage = (function() {
 
   function loadData() {
     dates = window.localStorage.getItemSplit(DATEKEY, ',', []);
-    dates.reverse();
-    dates.forEach(function(item){
+    dates.slice(0, 4).forEach(function(item){
       var contents = window.localStorage.getItemSplit(item, '\n', []);
       map[item] = contents;
       allContents = allContents.concat(contents);
     });
   }
 
+  function saveTodayData() {
+    var dateStr = dates.join(",");
+    window.localStorage.setItem(DATEKEY, dateStr);
+    let today = todayKey();
+    window.localStorage.setItem(today, map[today].join('\n'));
+  }
+
+  function addNewWord(newWord) {
+    if(newWord) {
+      var key = todayKey();
+      dates.uniqueUnshift(key);
+      allContents.uniqueUnshift(newWord);
+
+      if(!map[key]) {
+        map[key] = [];
+      }
+      map[key].uniqueUnshift(newWord);
+      refreshDiv(allContents, 'history');
+      refreshDiv(map[key], key.substr(0, 10));
+    }
+  }
+
   return {
     loadData: loadData,
     insertLastFiveDay: insertLastFiveDay,
     insertHistoryLink: insertHistoryLink,
+    addNewWord: addNewWord,
+    saveTodayData: saveTodayData,
   };
 })();
 
@@ -127,20 +184,8 @@ function initHistoryDiv() {
 // 1. save to today key , 2. save to all content, 3. add date key to datekey
 function saveWord(newContent) {
   if(newContent) {
-    var key = todayKey();
-    var todayCons = window.localStorage.getItemSplit(key, '\n', []);
-    for (var word of newContent.split('\n')) {
-      if(word && todayCons.indexOf(word) <= -1) {
-        todayCons.push(word);
-      }
-    }
-    window.localStorage.setItem(key, todayCons.join('\n'));
-
-    var ary = window.localStorage.getItemSplit(DATEKEY, ',', []);
-    if(ary.indexOf(key) <= -1) {
-      ary.push(key);
-    }
-    window.localStorage.setItem(DATEKEY, ary.join(','));
+    historyFromStorage.addNewWord(newContent.split('\n'));
+    historyFromStorage.saveTodayData();
   }
 }
 
@@ -193,10 +238,10 @@ addSaveBtn();
 observeDomChange();
 initHistoryDiv();
 
-const textChangeCallback = function(mutationsList, observer) {
+// const textChangeCallback = function(mutationsList, observer) {
 
-};
-var doc = document.getElementsByClassName('er8xn')[0];
-const config = { childList: true, subtree: true };
-const observer = new MutationObserver(textChangeCallback);
-observer.observe(doc, config);
+// };
+// var doc = document.getElementsByClassName('er8xn')[0];
+// const config = { childList: true, subtree: true };
+// const observer = new MutationObserver(textChangeCallback);
+// observer.observe(doc, config);
