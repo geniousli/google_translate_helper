@@ -108,7 +108,7 @@ const historyFromStorage = (function() {
     if(domFind) {
       domFind.parentElement.replaceWith(dom);
     }else {
-      let before = coll[1];
+      let before = coll[1].parentElement;
       parent.insertBefore(dom, before);
     }
   }
