@@ -1,9 +1,9 @@
 {
 
   "description": "create a google dictory",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "google_translate_helper",
-  "version": "1.0",
+  "version": "1.01",
   "homepage_url": "https://github.com/geniousli/google_translate_helper",
   "icons": {
     "48": "icons/translate-48.png"
