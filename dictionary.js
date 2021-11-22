@@ -136,7 +136,7 @@ const historyFromStorage = (function() {
 
   function loadData() {
     dates = window.localStorage.getItemSplit(DATEKEY, ',', []);
-    dates.slice(0, 4).forEach(function(item){
+    dates.forEach(function(item){
       var contents = window.localStorage.getItemSplit(item, '\n', []);
       map[item] = contents;
       allContents = allContents.concat(contents);
@@ -165,12 +165,17 @@ const historyFromStorage = (function() {
     }
   }
 
+  function getMap() {
+    return map;
+  }
+
   return {
     loadData: loadData,
     insertLastFiveDay: insertLastFiveDay,
     insertHistoryLink: insertHistoryLink,
     addNewWord: addNewWord,
     saveTodayData: saveTodayData,
+    getMap: getMap,
   };
 })();
 
@@ -211,7 +216,7 @@ function clickEvent(event) {
     saveWord(newContent);
     popToast('add success');
   }else if(event.target.getAttribute("sign") == "historyLink") {
-    browser.runtime.sendMessage({"msg": "open_history"});
+    browser.runtime.sendMessage({"msg": "open_history", data: historyFromStorage.getMap()});
   }else {
     console.log("event is " + event);
   }
